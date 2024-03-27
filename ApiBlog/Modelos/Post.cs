@@ -14,6 +14,6 @@ namespace ApiBlog.Modelos
         [Required]
         public string Etiquetas { get; set; } = null!;
         public DateTime FechaCreacion { get; set; }=DateTime.Now;
-        public DateTime FechaActualizacion { get; set; }
+        public DateTime? FechaActualizacion { get; set; }
     }
 }
