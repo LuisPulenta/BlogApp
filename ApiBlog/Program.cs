@@ -1,5 +1,7 @@
 using ApiBlog.Data;
 using ApiBlog.Mappers;
+using ApiBlog.Repositorio;
+using ApiBlog.Repositorio.IRepositorio;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Add services to the container.
+builder.Services.AddScoped<IPostRepositorio, PostRepositorio>();
 
 //Agregar Automapper
 builder.Services.AddAutoMapper(typeof(BlogMapper));
