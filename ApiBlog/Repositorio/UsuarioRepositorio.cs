@@ -7,48 +7,56 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using XSystem.Security.Cryptography;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ApiBlog.Repositorio
 {
     public class UsuarioRepositorio : IUsuarioRepositorio
     {
         private readonly ApplicationDbContext _bd;
-        private readonly IConfiguration _config;
         private string claveSecreta;
 
-        public UsuarioRepositorio(ApplicationDbContext bd,IConfiguration config)
+        public UsuarioRepositorio(ApplicationDbContext bd, IConfiguration config)
         {
             _bd = bd;
-            _config = config;
             claveSecreta = config.GetValue<string>("ApiSettings:Secreta");
         }
 
-        //------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------
         public Usuario GetUsuario(int usuarioId)
         {
             return _bd.Usuarios.FirstOrDefault(c => c.Id == usuarioId);
         }
 
-        //------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------
         public ICollection<Usuario> GetUsuarios()
-        {            
+        {
             return _bd.Usuarios.OrderBy(c => c.Id).ToList();
         }
 
-        //------------------------------------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------
         public bool IsUniqueUser(string usuario)
         {
-            bool valor = _bd.Usuarios.Any(c => c.NombreUsuario.ToLower().Trim() == usuario.ToLower().Trim());
-            return valor;
+            var usuariobd = _bd.Usuarios.FirstOrDefault(u => u.NombreUsuario == usuario);
+            if (usuariobd == null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
-        //------------------------------------------------------------------------------------
-        public async Task<UsuarioLoginRespuestaDTO> Login(UsuarioLoginDTO usuarioLoginDTO)
+        //---------------------------------------------------------------------------------------------------------
+        public async Task<UsuarioLoginRespuestaDTO> Login(UsuarioLoginDTO usuarioLoginDto)
         {
-            var passwordEncriptado = obtenermd5(usuarioLoginDTO.Password);
-            var usuario = _bd.Usuarios.FirstOrDefault(u => u.NombreUsuario.ToLower() == usuarioLoginDTO.NombreUsuario.ToLower() && usuarioLoginDTO.Password == passwordEncriptado);
-            if(usuario == null)
+            var passwordEncriptado = obtenermd5(usuarioLoginDto.Password);
+
+            var usuario = _bd.Usuarios.FirstOrDefault(
+                u => u.NombreUsuario.ToLower() == usuarioLoginDto.NombreUsuario.ToLower()
+                && u.Password == passwordEncriptado
+                );
+
+            //Validamos si el usuario no existe con la combinación de usuario y contraseña correcta
+            if (usuario == null)
             {
                 return new UsuarioLoginRespuestaDTO()
                 {
@@ -56,14 +64,18 @@ namespace ApiBlog.Repositorio
                     Usuario = null
                 };
             }
+
+            //Aquí existe el usuario entonces podemos procesar el login      
             var manejadorToken = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(claveSecreta);
 
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new System.Security.Claims.ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, usuario.NombreUsuario.ToString()),
+                    //new Claim(ClaimTypes.Role, usuario.Role)
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -71,37 +83,48 @@ namespace ApiBlog.Repositorio
 
             var token = manejadorToken.CreateToken(tokenDescriptor);
 
-            UsuarioLoginRespuestaDTO usuarioLoginRespuestaDTO = new UsuarioLoginRespuestaDTO()
+            UsuarioLoginRespuestaDTO usuarioLoginRespuestaDto = new UsuarioLoginRespuestaDTO()
             {
                 Token = manejadorToken.WriteToken(token),
                 Usuario = usuario
             };
 
-            return usuarioLoginRespuestaDTO;
+            return usuarioLoginRespuestaDto;
         }
 
-        
-        //------------------------------------------------------------------------------------
-        public async Task<Usuario> Registro(UsuarioRegistroDTO usuarioRegistroDTO)
+        //---------------------------------------------------------------------------------------------------------
+        public async Task<Usuario> Registro(UsuarioRegistroDTO usuarioRegistroDto)
         {
-            var passwordEncriptado = obtenermd5(usuarioRegistroDTO.Password);
+
+            var passwordEncriptado = obtenermd5(usuarioRegistroDto.Password);
 
             Usuario usuario = new Usuario()
             {
-                NombreUsuario = usuarioRegistroDTO.NombreUsuario,
-                Nombre = usuarioRegistroDTO.Nombre,
-                Email = usuarioRegistroDTO.Email,
-                Password = usuarioRegistroDTO.Password,
+                NombreUsuario = usuarioRegistroDto.NombreUsuario,
+                Nombre = usuarioRegistroDto.Nombre,
+                Email = usuarioRegistroDto.Email,
+                Password = usuarioRegistroDto.Password
             };
+
+            ////Validar si el usuario ya existe
+            //var nombreUsuarioDesdeBd = _bd.Usuarios.FirstOrDefault(
+            //    u => u.NombreUsuario == usuarioRegistroDto.NombreUsuario);
+
+            //if (nombreUsuarioDesdeBd == null)
+            //{
+            //    return usuario;
+            //}
 
             _bd.Usuarios.Add(usuario);
             usuario.Password = passwordEncriptado;
             await _bd.SaveChangesAsync();
             return usuario;
+
         }
 
-        //------------------------------------------------------------------------------------
-        private string obtenermd5(string valor)
+        //---------------------------------------------------------------------------------------------------------
+        //Método para encriptar contraseña con MD5 se usa tanto en el Acceso como en el Registro
+        public static string obtenermd5(string valor)
         {
             MD5CryptoServiceProvider x = new MD5CryptoServiceProvider();
             byte[] data = System.Text.Encoding.UTF8.GetBytes(valor);

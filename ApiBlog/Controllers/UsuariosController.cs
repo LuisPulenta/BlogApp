@@ -1,9 +1,7 @@
 ﻿using ApiBlog.Modelos;
 using ApiBlog.Modelos.DTO;
-using ApiBlog.Repositorio;
 using ApiBlog.Repositorio.IRepositorio;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -16,13 +14,13 @@ namespace ApiBlog.Controllers
         private readonly IUsuarioRepositorio _usRepo;
         private readonly IMapper _mapper;
 
-        protected RespuestasAPI _respuestasAPI;
+        protected RespuestasAPI _respuestaAPI;
 
         public UsuariosController(IUsuarioRepositorio usRepo, IMapper mapper)
         {
             _usRepo = usRepo;
             _mapper = mapper;
-            this._respuestasAPI = new();
+            this._respuestaAPI = new();
         }
 
         //---------------------------------------------------------------------------------------------
@@ -36,45 +34,45 @@ namespace ApiBlog.Controllers
             bool validarNombreUsuarioUnico = _usRepo.IsUniqueUser(usuarioRegistroDTO.NombreUsuario);
             if (validarNombreUsuarioUnico)
             {
-                _respuestasAPI.StatusCode=HttpStatusCode.BadRequest;
-                _respuestasAPI.IsScuccess = false;
-                _respuestasAPI.ErrorMessages.Add("El nombre de usuario ya existe");
-                return BadRequest(_respuestasAPI);
+                _respuestaAPI.StatusCode=HttpStatusCode.BadRequest;
+                _respuestaAPI.IsSuccess = false;
+                _respuestaAPI.ErrorMessages.Add("El nombre de usuario ya existe");
+                return BadRequest(_respuestaAPI);
             }
 
             var usuario = await _usRepo.Registro(usuarioRegistroDTO);
             if (usuario == null)
             {
-                _respuestasAPI.StatusCode = HttpStatusCode.BadRequest;
-                _respuestasAPI.IsScuccess = false;
-                _respuestasAPI.ErrorMessages.Add("Error en el registro");
-                return BadRequest(_respuestasAPI);
+                _respuestaAPI.StatusCode = HttpStatusCode.BadRequest;
+                _respuestaAPI.IsSuccess = false;
+                _respuestaAPI.ErrorMessages.Add("Error en el registro");
+                return BadRequest(_respuestaAPI);
             }
-            _respuestasAPI.StatusCode = HttpStatusCode.OK;
-            _respuestasAPI.IsScuccess = true;
-            return Ok(_respuestasAPI);
+            _respuestaAPI.StatusCode = HttpStatusCode.OK;
+            _respuestaAPI.IsSuccess = true;
+            return Ok(_respuestaAPI);
         }
 
         //---------------------------------------------------------------------------------------------
-        [HttpPost("Login")]
+        [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-
-        public async Task<IActionResult> Login([FromBody] UsuarioLoginDTO usuarioLoginDTO)
+        public async Task<IActionResult> Login([FromBody] UsuarioLoginDTO usuarioLoginDto)
         {
-            var respuestaLogin = await _usRepo.Login(usuarioLoginDTO);
+            var respuestaLogin = await _usRepo.Login(usuarioLoginDto);
             if (respuestaLogin.Usuario == null || string.IsNullOrEmpty(respuestaLogin.Token))
             {
-                _respuestasAPI.StatusCode = HttpStatusCode.BadRequest;
-                _respuestasAPI.IsScuccess = false;
-                _respuestasAPI.ErrorMessages.Add("El nombre del usuario o password son incorrectos");
-                return BadRequest(_respuestasAPI);
+                _respuestaAPI.StatusCode = HttpStatusCode.BadRequest;
+                _respuestaAPI.IsSuccess = false;
+                _respuestaAPI.ErrorMessages.Add("El nombre de usuario o password son incorrectos");
+                return BadRequest(_respuestaAPI);
             }
-            _respuestasAPI.StatusCode = HttpStatusCode.OK;
-            _respuestasAPI.IsScuccess = true;
-            _respuestasAPI.Result = respuestaLogin;
-            return Ok(_respuestasAPI);
+
+            _respuestaAPI.StatusCode = HttpStatusCode.OK;
+            _respuestaAPI.IsSuccess = true;
+            _respuestaAPI.Result = respuestaLogin;
+            return Ok(_respuestaAPI);
         }
 
         //---------------------------------------------------------------------------------------------
