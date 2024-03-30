@@ -1,7 +1,26 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject IJSRuntime JSRuntime
 
-<h1>Hello, world!</h1>
+<PageTitle>Inicio</PageTitle>
 
-Welcome to your new app.
+<h1 class="Ultimos Posts">Hello, world!</h1>
+
+<div class="row mt-4">
+    <div class="col-4">
+        <button class="btn btn-sm btn-success" @onclick="DemoSuccess">Demo Toastr Success</button>
+        <button class="btn btn-sm btn-danger" @onclick="DemoError">Demo Toastr Error</button>
+    </div>
+</div>
+
+@code{
+    //Método para el Toastr
+    private async Task DemoSuccess(){
+        await JSRuntime.ToastrSuccess("Tarea completada!");
+    }
+
+    private async Task DemoError()
+    {
+        await JSRuntime.ToastrError("Error, Tarea no completada!");
+    }
+}
