@@ -2,6 +2,7 @@
 using ApiBlog.Modelos.DTO;
 using ApiBlog.Repositorio.IRepositorio;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -24,7 +25,7 @@ namespace ApiBlog.Controllers
         }
 
         //---------------------------------------------------------------------------------------------
-        [HttpPost("Registro")]
+        [HttpPost("registro")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -76,6 +77,7 @@ namespace ApiBlog.Controllers
         }
 
         //---------------------------------------------------------------------------------------------
+        [Authorize]
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -93,6 +95,7 @@ namespace ApiBlog.Controllers
         }
 
         //---------------------------------------------------------------------------------------------
+        [Authorize]
         [HttpGet("{usuarioId:int}",Name = "GetUsuario")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
