@@ -1,0 +1,97 @@
+﻿@page "/crear-post"
+@using ClienteBlazorWASM.Modelos
+@using ClienteBlazorWASM.Servicios.IServicio
+
+@inject IPostsServicio postsServicio
+@inject IJSRuntime JSRuntime
+@inject NavigationManager navigationManager
+
+<h1 class="text-center">Crear Post</h1>
+
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title tect-dark">Nuevo Post</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body">
+       <EditForm Model="CrearPost" OnValidSubmit="@( () => ManejadorOnCrearPost())">
+           <DataAnnotationsValidator></DataAnnotationsValidator>
+           <ValidationSummary></ValidationSummary>
+           <div class="container">
+               
+               <div class="form-group">
+                   <div class="row">
+                       <div class="col-1">
+                           <label>Título:</label>
+                       </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="CrearPost.Titulo" class="form-control" placeholder="Título..."></InputText>
+                            <ValidationMessage For="() => CrearPost.Titulo"></ValidationMessage>
+                        </div>
+                   </div>
+               </div>
+               <br />
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-1">
+                            <label>Descripción:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="CrearPost.Descripcion" class="form-control" placeholder="Descripción..."></InputText>
+                            <ValidationMessage For="() => CrearPost.Descripcion"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-1">
+                            <label>Etiquetas:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="CrearPost.Etiquetas" class="form-control" placeholder="Etiquetas separadas por coma..."></InputText>
+                            <ValidationMessage For="() => CrearPost.Etiquetas"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-6">
+                            <label>Imagen Post:</label>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            @* @onclick="()=>ManejadorOnBorrar(post.Id)" *@
+                            <button class="btn btn-sm btn-outline-success"><i class="bi bi-gear-fill"></i>&nbsp; Guardar</button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="posts" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left-circle-fill"></i>&nbsp; Volver</NavLink>
+                        </div>
+                    </div>
+                </div>
+
+           </div>
+       </EditForm>
+    </div>
+</div>
+
+@code {
+    public Post CrearPost { get; set; } = new Post();
+
+    private async Task ManejadorOnCrearPost()
+    {
+        var crearPost = await postsServicio.CrearPost(CrearPost);
+        await JSRuntime.ToastrSuccess("Post creado corretamente!");
+        navigationManager.NavigateTo("posts");
+    }
+}

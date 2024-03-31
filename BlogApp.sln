@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiBlog", "ApiBlog\ApiBlog.csproj", "{37A256C6-7979-4F8A-85A7-182E0615697C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClienteBlazorWASM", "ClienteBlazorWASM\ClienteBlazorWASM.csproj", "{631F2767-9A52-4B49-81DC-F02C804439B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClienteBlazorWASM", "ClienteBlazorWASM\ClienteBlazorWASM.csproj", "{631F2767-9A52-4B49-81DC-F02C804439B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
