@@ -1,6 +1,8 @@
 ﻿@page "/crear-post"
 @using ClienteBlazorWASM.Modelos
+@using ClienteBlazorWASM.Servicios
 @using ClienteBlazorWASM.Servicios.IServicio
+@using System.Net.Http.Headers
 
 @inject IPostsServicio postsServicio
 @inject IJSRuntime JSRuntime
@@ -59,10 +61,19 @@
                     </div>
                 </div>
                 <br />
+
                 <div class="form-group">
                     <div class="row">
                         <div class="col-6">
-                            <label>Imagen Post:</label>
+                            <h4>Imagen Post</h4>
+                            <InputFile OnChange="@ManejadorOnSubidaArchivo"></InputFile>
+                            <br />
+                            @if (imagenPost != null)
+                            {
+                                <div>
+                                    <img src="@imagenPost" style="width:300px">
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
@@ -88,10 +99,35 @@
 @code {
     public Post CrearPost { get; set; } = new Post();
 
+    [Parameter]
+    public string imagenPost { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnChange { get; set; }
+
     private async Task ManejadorOnCrearPost()
     {
+        CrearPost.RutaImagen = imagenPost;
         var crearPost = await postsServicio.CrearPost(CrearPost);
         await JSRuntime.ToastrSuccess("Post creado corretamente!");
         navigationManager.NavigateTo("posts");
+    }
+    
+
+    private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
+    {
+        var imageFile = e.File;
+        if (imageFile != null)
+        {
+            var resizedFile = await imageFile.RequestImageFileAsync("image/png", 1000, 700);
+            using (var ms = resizedFile.OpenReadStream(resizedFile.Size))
+            {
+                var content = new MultipartFormDataContent();
+                content.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data");
+                content.Add(new StreamContent(ms, Convert.ToInt32(resizedFile.Size)), "image", imageFile.Name);
+                imagenPost = await postsServicio.SubidaImagen(content);
+                await OnChange.InvokeAsync(imagenPost);
+            }
+        }
     }
 }

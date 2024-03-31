@@ -14,10 +14,6 @@ namespace ClienteBlazorWASM.Servicios
         {
             _cliente = cliente;
         }
-        public Task<string> SubidaImagen(MultipartFormDataContent content)
-        {
-            throw new NotImplementedException();
-        }
 
         //--------------------------------------------------------------------------------------
         public async Task<Post> ActualizarPost(int postId, Post post)
@@ -108,19 +104,19 @@ namespace ClienteBlazorWASM.Servicios
         }
 
         //--------------------------------------------------------------------------------------
-        //public async Task<string> SubidaImagen(MultipartFormDataContent content)
-        //{
-        //    var postResult = await _cliente.PostAsync($"{Inicializar.UrlBaseApi}api/upload", content);
-        //    var postContent = await postResult.Content.ReadAsStringAsync();
-        //    if (!postResult.IsSuccessStatusCode)
-        //    {
-        //        throw new ApplicationException(postContent);
-        //    }
-        //    else
-        //    {
-        //        var imagenPost = Path.Combine($"{Inicializar.UrlBaseApi}", postContent);
-        //        return imagenPost;
-        //    }
-        //}
+        public async Task<string> SubidaImagen(MultipartFormDataContent content)
+        {
+            var postResult = await _cliente.PostAsync($"{Inicializar.UrlBaseApi}api/upload", content);
+            var postContent = await postResult.Content.ReadAsStringAsync();
+            if (!postResult.IsSuccessStatusCode)
+            {
+                throw new ApplicationException(postContent);
+            }
+            else
+            {
+                var imagenPost = Path.Combine($"{Inicializar.UrlBaseApi}", postContent);
+                return imagenPost;
+            }
+        }
     }
 }
