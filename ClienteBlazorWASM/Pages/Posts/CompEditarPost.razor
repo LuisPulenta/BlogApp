@@ -1,4 +1,4 @@
-﻿@page "/crear-post"
+﻿@page "/editar-post/{Id:int}"
 @using ClienteBlazorWASM.Modelos
 @using ClienteBlazorWASM.Servicios
 @using ClienteBlazorWASM.Servicios.IServicio
@@ -14,37 +14,37 @@
     <div class="card-header">
         <div class="row">
             <div class="col-7">
-                <h4 class="card-title tect-dark">Nuevo Post</h4>
+                <h4 class="card-title tect-dark">Editar Post</h4>
             </div>
         </div>
     </div>
 
     <div class="card-body">
-       <EditForm Model="CrearPost" OnValidSubmit="@( () => ManejadorOnCrearPost())">
-           <DataAnnotationsValidator></DataAnnotationsValidator>
-           <ValidationSummary></ValidationSummary>
-           <div class="container">
-               
-               <div class="form-group">
-                   <div class="row">
-                       <div class="col-1">
-                           <label>Título:</label>
-                       </div>
-                        <div class="col-6">
-                            <InputText @bind-Value="CrearPost.Titulo" class="form-control" placeholder="Título..."></InputText>
-                            <ValidationMessage For="() => CrearPost.Titulo"></ValidationMessage>
+        <EditForm Model="EditarPost" OnValidSubmit="@( () => ManejadorOnEditarPost())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-1">
+                            <label>Título:</label>
                         </div>
-                   </div>
-               </div>
-               <br />
+                        <div class="col-6">
+                            <InputText @bind-Value="EditarPost.Titulo" class="form-control" placeholder="Título..."></InputText>
+                            <ValidationMessage For="() => EditarPost.Titulo"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
                 <div class="form-group">
                     <div class="row">
                         <div class="col-1">
                             <label>Descripción:</label>
                         </div>
                         <div class="col-6">
-                            <InputText @bind-Value="CrearPost.Descripcion" class="form-control" placeholder="Descripción..."></InputText>
-                            <ValidationMessage For="() => CrearPost.Descripcion"></ValidationMessage>
+                            <InputText @bind-Value="EditarPost.Descripcion" class="form-control" placeholder="Descripción..."></InputText>
+                            <ValidationMessage For="() => EditarPost.Descripcion"></ValidationMessage>
                         </div>
                     </div>
                 </div>
@@ -55,8 +55,8 @@
                             <label>Etiquetas:</label>
                         </div>
                         <div class="col-6">
-                            <InputText @bind-Value="CrearPost.Etiquetas" class="form-control" placeholder="Etiquetas separadas por coma..."></InputText>
-                            <ValidationMessage For="() => CrearPost.Etiquetas"></ValidationMessage>
+                            <InputText @bind-Value="EditarPost.Etiquetas" class="form-control" placeholder="Etiquetas separadas por coma..."></InputText>
+                            <ValidationMessage For="() => EditarPost.Etiquetas"></ValidationMessage>
                         </div>
                     </div>
                 </div>
@@ -66,6 +66,13 @@
                     <div class="row">
                         <div class="col-6">
                             <h4>Imagen Post</h4>
+                            <div class="imagen-post mb-3" style="background: url('@EditarPost.RutaImagen'); width:300px; height:169px; background-size:cover;">
+
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <h4>Actualizar Imagen Post</h4>
                             <InputFile OnChange="@ManejadorOnSubidaArchivo"></InputFile>
                             <br />
                             @if (imagenPost != null)
@@ -91,13 +98,16 @@
                     </div>
                 </div>
 
-           </div>
-       </EditForm>
+            </div>
+        </EditForm>
     </div>
 </div>
 
 @code {
-    public Post CrearPost { get; set; } = new Post();
+    public Post EditarPost { get; set; } = new Post();
+
+    [Parameter]
+    public int? Id { get; set; }
 
     [Parameter]
     public string imagenPost { get; set; }
@@ -105,14 +115,19 @@
     [Parameter]
     public EventCallback<string> OnChange { get; set; }
 
-    private async Task ManejadorOnCrearPost()
+    protected override async Task OnInitializedAsync()
     {
-        CrearPost.RutaImagen = imagenPost;
-        var crearPost = await postsServicio.CrearPost(CrearPost);
-        await JSRuntime.ToastrSuccess("Post creado correctamente!");
+        EditarPost = await postsServicio.GetPost(Id.Value);
+    }
+
+    private async Task ManejadorOnEditarPost()
+    {
+        EditarPost.RutaImagen = imagenPost;
+        var editarPost = await postsServicio.ActualizarPost(Id.Value,EditarPost);
+        await JSRuntime.ToastrSuccess("Post actualizado correctamente!");
         navigationManager.NavigateTo("posts");
     }
-    
+
 
     private async Task ManejadorOnSubidaArchivo(InputFileChangeEventArgs e)
     {
