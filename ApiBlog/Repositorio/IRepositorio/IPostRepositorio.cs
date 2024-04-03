@@ -17,7 +17,7 @@ namespace ApiBlog.Repositorio.IRepositorio
         bool ActualizarPost(Post post);
 
         bool BorrarPost(Post post);
-
+        
         bool Guardar();
     }
 }

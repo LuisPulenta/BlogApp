@@ -3,6 +3,8 @@
 @using ClienteBlazorWASM.Servicios
 @using ClienteBlazorWASM.Servicios.IServicio
 @using System.Net.Http.Headers
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
 
 @inject IPostsServicio postsServicio
 @inject IJSRuntime JSRuntime

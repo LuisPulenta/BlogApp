@@ -98,7 +98,7 @@ namespace ClienteBlazorWASM.Servicios
             return posts;
         }
 
-        Task<Post> IPostsServicio.EliminarPost(int postId)
+        Task<bool> IPostsServicio.EliminarPost(int postId)
         {
             throw new NotImplementedException();
         }

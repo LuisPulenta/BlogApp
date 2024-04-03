@@ -23,6 +23,7 @@ var key = builder.Configuration.GetValue<string>("ApiSettings:Secreta");
 
 //Agregar Automapper
 builder.Services.AddAutoMapper(typeof(BlogMapper));
+builder.Services.AddAutoMapper(typeof(UsuarioMapper));
 
 //Aquí se configura la Autenticación - Primera parte
 builder.Services.AddAuthentication(x =>

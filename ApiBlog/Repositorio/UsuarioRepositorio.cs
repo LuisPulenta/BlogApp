@@ -37,7 +37,7 @@ namespace ApiBlog.Repositorio
         public bool IsUniqueUser(string usuario)
         {
             var usuariobd = _bd.Usuarios.FirstOrDefault(u => u.NombreUsuario == usuario);
-            if (usuariobd == null)
+            if (usuariobd != null)
             {
                 return true;
             }

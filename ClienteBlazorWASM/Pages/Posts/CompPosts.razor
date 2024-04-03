@@ -1,8 +1,13 @@
 ﻿@page "/posts"
-@using ClienteBlazorWASM.Modelos
-@using ClienteBlazorWASM.Servicios.IServicio
-
+@using ClienteBlazorWASM.Modelos;
+@using ClienteBlazorWASM.Pages.Shared
+@using ClienteBlazorWASM.Servicios.IServicio;
+@using Microsoft.AspNetCore.Authorization
 @inject IPostsServicio postsServicio
+@inject IJSRuntime JsRuntime
+@attribute [Authorize]
+
+
 
 <h1 class="text-center">Lista de Posts</h1>
 
@@ -64,17 +69,37 @@
     </div>
 </div>
 
+<ConfirmacionBorrado ProcesandoComponentePadre="estaProcesando" CambioConfirmacion="Click_Confirmar_Borrado"></ConfirmacionBorrado>
 
 @code {
     public IEnumerable<Post> Posts { get; set; } = new List<Post>();
+    //Par la parte de borrar
+    private bool estaProcesando { get; set; } = false;
+    private int? BorrarIdPost { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
         Posts = await postsServicio.GetPosts();
     }
 
-    public void ManejadorOnBorrar(int id)
+    public async Task ManejadorOnBorrar(int postId)
     {
-        
+        BorrarIdPost = postId;
+        await JsRuntime.InvokeVoidAsync("MostrarModalConfirmacionBorrado");
+    }
+
+    public async Task Click_Confirmar_Borrado(bool confirmado)
+    {
+        estaProcesando = true;
+        if (confirmado && BorrarIdPost != null)
+        {
+            // Post post = await postsServicio.GetPost(BorrarIdPost.Value);
+            await postsServicio.EliminarPost(BorrarIdPost.Value);
+            await JsRuntime.ToastrSuccess("Post borrado correctamente");
+            Posts = await postsServicio.GetPosts();
+        }
+
+        await JsRuntime.InvokeVoidAsync("OcultarModalConfirmacionBorrado");
+        estaProcesando = false;
     }
 }

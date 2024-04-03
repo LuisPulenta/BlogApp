@@ -12,7 +12,7 @@ namespace ClienteBlazorWASM.Servicios.IServicio
 
         public Task<Post> ActualizarPost(int postId, Post post);
 
-        public Task<Post> EliminarPost(int postId);
+        public Task<bool> EliminarPost(int postId);
 
         public Task<string> SubidaImagen(MultipartFormDataContent content);
     }

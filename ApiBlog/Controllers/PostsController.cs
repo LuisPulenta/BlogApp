@@ -58,7 +58,7 @@ namespace ApiBlog.Controllers
             return Ok(itemPostDTO);
         }
         //---------------------------------------------------------------------------------------------
-        //[Authorize]
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(201,Type=typeof(PostCrearDTO))]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -94,7 +94,7 @@ namespace ApiBlog.Controllers
         }
 
         //---------------------------------------------------------------------------------------------
-        //[Authorize]
+        [Authorize]
         [HttpPatch("{postId:int}", Name = "ActualizarPatchPost")]
         [ProducesResponseType(201, Type = typeof(PostCrearDTO))]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -130,7 +130,7 @@ namespace ApiBlog.Controllers
         }
 
         //---------------------------------------------------------------------------------------------
-        //[Authorize]
+        [Authorize]
         [HttpDelete("{postId:int}", Name = "BorrarPost")]
         [ProducesResponseType(201, Type = typeof(PostCrearDTO))]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
